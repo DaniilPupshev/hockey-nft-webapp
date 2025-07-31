@@ -5,7 +5,7 @@
     <title>Хоккейная Площадка</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Новая версия TON Connect -->
+    <!-- Версия 2.2.0 -->
     <script src="https://unpkg.com/@tonconnect/ui@2.2.0/dist/tonconnect-ui.min.js"></script>
     <style>
         body {
@@ -18,6 +18,12 @@
             margin: 20px auto;
             max-width: 300px;
         }
+        .wallet-info {
+            margin: 20px 0;
+            padding: 10px;
+            background: #e8f4fd;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -25,6 +31,7 @@
     <p>Собирай карточки хоккеистов и сражайся!</p>
     
     <div id="ton-connect"></div>
+    <div id="wallet-info"></div>
     
     <div id="user-info"></div>
 
@@ -39,32 +46,45 @@
                     `<p>Привет, ${initData.user.first_name}!</p>`;
             }
             
-            // Проверяем, загрузился ли TON Connect
-            console.log('Window object keys:', Object.keys(window));
+            console.log('Initializing TON Connect v2.2.0');
             
-            // Новый способ инициализации для версии 2.x
-            if (typeof TonConnect !== 'undefined') {
-                console.log('TonConnect loaded successfully');
+            // Проверяем, доступна ли библиотека
+            if (window.TonConnectUI) {
+                console.log('TonConnectUI loaded successfully');
                 
                 try {
-                    // Создаем провайдер
-                    const connector = new TonConnectSDK.TonConnect();
-                    
-                    // Инициализируем UI
-                    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                        manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json',
-                        buttonRootId: 'ton-connect'
+                    // Инициализируем TON Connect UI
+                    const tonConnectUI = new window.TonConnectUI.TonConnectUI({
+                        manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json'
                     });
                     
-                    console.log('TON Connect UI initialized successfully');
+                    // Рендерим кнопку
+                    tonConnectUI.render('#ton-connect');
+                    
+                    console.log('TON Connect UI initialized and rendered');
+                    
+                    // Слушаем изменения состояния кошелька
+                    tonConnectUI.onStatusChange(wallet => {
+                        if (wallet) {
+                            console.log('Wallet connected:', wallet);
+                            document.getElementById('wallet-info').innerHTML = 
+                                `<div class="wallet-info">
+                                    <p>✅ Кошелек подключен!</p>
+                                    <p>Адрес: ${wallet.account.address}</p>
+                                </div>`;
+                        } else {
+                            console.log('Wallet disconnected');
+                            document.getElementById('wallet-info').innerHTML = '';
+                        }
+                    });
+                    
                 } catch (error) {
                     console.error('TON Connect initialization error:', error);
                     document.getElementById('ton-connect').innerHTML = 
-                        '<p style="color: red;">Ошибка инициализации кошелька: ' + error.message + '</p>';
+                        '<p style="color: red;">Ошибка инициализации кошелька</p>';
                 }
             } else {
-                console.error('TonConnect not found in window object');
-                console.log('Available objects:', Object.keys(window).filter(key => key.toLowerCase().includes('ton')));
+                console.error('TonConnectUI not found');
                 document.getElementById('ton-connect').innerHTML = 
                     '<p style="color: red;">Кошелек не поддерживается</p>';
             }
