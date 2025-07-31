@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Хоккейная Площадка</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f8ff;
+        }
+        h1 {
+            color: #0044cc;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏒 Добро пожаловать в Хоккейную Площадку!</h1>
+    <p>Здесь ты сможешь покупать, продавать и коллекционировать NFT-карточки хоккеистов.</p>
+    <button onclick="Telegram.WebApp.ready()">Готово</button>
+
+    <script>
+        Telegram.WebApp.ready();
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            document.body.innerHTML += `<p>Привет, ${user.first_name}!</p>`;
+        }
+    </script>
+</body>
+</html>
