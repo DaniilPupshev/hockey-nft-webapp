@@ -48,13 +48,13 @@
             
             console.log('Initializing TON Connect v2.2.0');
             
-            // Проверяем, доступна ли библиотека
-            if (typeof TON_CONNECT_UI !== 'undefined') {
+            // Проверяем, доступна ли библиотека через window
+            if (typeof window.TON_CONNECT_UI !== 'undefined') {
                 console.log('TON_CONNECT_UI loaded successfully');
                 
                 try {
                     // Инициализируем TON Connect UI
-                    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                    const tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({
                         manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json'
                     });
                     
@@ -84,7 +84,7 @@
                         '<p style="color: red;">Ошибка инициализации кошелька</p>';
                 }
             } else {
-                console.error('TON_CONNECT_UI not found');
+                console.error('TON_CONNECT_UI not found in window object');
                 document.getElementById('ton-connect').innerHTML = 
                     '<p style="color: red;">Кошелек не поддерживается</p>';
             }
