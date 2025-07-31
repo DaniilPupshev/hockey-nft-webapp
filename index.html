@@ -5,28 +5,69 @@
     <title>Хоккейная Площадка</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Используем более стабильную версию -->
+    <script src="https://unpkg.com/@tonconnect/ui@0.0.7/dist/tonconnect-ui.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
             background: #f0f8ff;
+            text-align: center;
         }
-        h1 {
-            color: #0044cc;
+        #ton-connect {
+            margin: 20px auto;
+            max-width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>🏒 Добро пожаловать в Хоккейную Площадку!</h1>
-    <p>Здесь ты сможешь покупать, продавать и коллекционировать NFT-карточки хоккеистов.</p>
-    <button onclick="Telegram.WebApp.ready()">Готово</button>
+    <h1>🏒 Хоккейная Площадка</h1>
+    <p>Собирай карточки хоккеистов и сражайся!</p>
+
+    <div id="ton-connect"></div>
+
+    <div id="user-info"></div>
 
     <script>
-        Telegram.WebApp.ready();
-        const user = Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            document.body.innerHTML += `<p>Привет, ${user.first_name}!</p>`;
-        }
+        // Ждем полной загрузки
+        window.onload = function() {
+            Telegram.WebApp.ready();
+
+            // Показываем информацию о пользователе
+            const initData = Telegram.WebApp.initDataUnsafe;
+            if (initData.user) {
+                document.getElementById('user-info').innerHTML =
+                    `<p>Привет, ${initData.user.first_name}!</p>`;
+            }
+
+            // Проверяем, загрузился ли TON Connect
+            if (typeof TON_CONNECT_UI !== 'undefined') {
+                try {
+                    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                        manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json',
+                        buttonRootId: 'ton-connect'
+                    });
+                    console.log('TON Connect loaded successfully');
+                } catch (error) {
+                    console.error('TON Connect error:', error);
+                    document.getElementById('ton-connect').innerHTML =
+                        '<p style="color: red;">Ошибка загрузки кошелька</p>';
+                }
+            } else {
+                console.error('TON Connect script not loaded');
+                document.getElementById('ton-connect').innerHTML =
+                    '<p style="color: red;">Кошелек не поддерживается</p>';
+            }
+        };
     </script>
 </body>
 </html>
