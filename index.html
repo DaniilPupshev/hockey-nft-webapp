@@ -32,39 +32,41 @@
 <body>
     <h1>🏒 Хоккейная Площадка</h1>
     <p>Собирай карточки хоккеистов и сражайся!</p>
-
+    
     <div id="ton-connect"></div>
-
+    
     <div id="user-info"></div>
 
     <script>
         // Ждем полной загрузки
         window.onload = function() {
             Telegram.WebApp.ready();
-
+            
             // Показываем информацию о пользователе
             const initData = Telegram.WebApp.initDataUnsafe;
             if (initData.user) {
-                document.getElementById('user-info').innerHTML =
+                document.getElementById('user-info').innerHTML = 
                     `<p>Привет, ${initData.user.first_name}!</p>`;
             }
-
+            
             // Проверяем, загрузился ли TON Connect
             if (typeof TON_CONNECT_UI !== 'undefined') {
+                console.log('TON Connect script loaded');
+                
                 try {
                     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                        manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json',
+                        manifestUrl: 'https:/daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json',
                         buttonRootId: 'ton-connect'
                     });
-                    console.log('TON Connect loaded successfully');
+                    console.log('TON Connect UI initialized');
                 } catch (error) {
                     console.error('TON Connect error:', error);
-                    document.getElementById('ton-connect').innerHTML =
+                    document.getElementById('ton-connect').innerHTML = 
                         '<p style="color: red;">Ошибка загрузки кошелька</p>';
                 }
             } else {
                 console.error('TON Connect script not loaded');
-                document.getElementById('ton-connect').innerHTML =
+                document.getElementById('ton-connect').innerHTML = 
                     '<p style="color: red;">Кошелек не поддерживается</p>';
             }
         };
