@@ -5,8 +5,8 @@
     <title>Хоккейная Площадка</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Используем более стабильную версию -->
-    <script src="https://unpkg.com/@tonconnect/ui@0.0.7/dist/tonconnect-ui.min.js"></script>
+    <!-- Используем latest версию -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,15 +17,6 @@
         #ton-connect {
             margin: 20px auto;
             max-width: 300px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background: #0088cc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -38,7 +29,6 @@
     <div id="user-info"></div>
 
     <script>
-        // Ждем полной загрузки
         window.onload = function() {
             Telegram.WebApp.ready();
 
@@ -51,16 +41,18 @@
 
             // Проверяем, загрузился ли TON Connect
             if (typeof TON_CONNECT_UI !== 'undefined') {
+                console.log('TON Connect script loaded successfully');
+
                 try {
                     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
                         manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json',
                         buttonRootId: 'ton-connect'
                     });
-                    console.log('TON Connect loaded successfully');
+                    console.log('TON Connect UI initialized successfully');
                 } catch (error) {
-                    console.error('TON Connect error:', error);
+                    console.error('TON Connect initialization error:', error);
                     document.getElementById('ton-connect').innerHTML =
-                        '<p style="color: red;">Ошибка загрузки кошелька</p>';
+                        '<p style="color: red;">Ошибка инициализации кошелька: ' + error.message + '</p>';
                 }
             } else {
                 console.error('TON Connect script not loaded');
