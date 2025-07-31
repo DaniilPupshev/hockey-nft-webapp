@@ -5,8 +5,8 @@
     <title>Хоккейная Площадка</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Версия 2.2.0 -->
-    <script src="https://unpkg.com/@tonconnect/ui@2.2.0/dist/tonconnect-ui.min.js"></script>
+    <!-- Используем базовую версию без UI -->
+    <script src="https://unpkg.com/@tonconnect/sdk@2.2.0/dist/index.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,15 +14,29 @@
             background: #f0f8ff;
             text-align: center;
         }
-        #ton-connect {
-            margin: 20px auto;
-            max-width: 300px;
+        #connect-wallet {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        #connect-wallet:hover {
+            background: #006699;
         }
         .wallet-info {
             margin: 20px 0;
-            padding: 10px;
+            padding: 15px;
             background: #e8f4fd;
-            border-radius: 5px;
+            border-radius: 8px;
+            display: none;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -30,8 +44,12 @@
     <h1>🏒 Хоккейная Площадка</h1>
     <p>Собирай карточки хоккеистов и сражайся!</p>
     
-    <div id="ton-connect"></div>
-    <div id="wallet-info"></div>
+    <button id="connect-wallet">Подключить TON кошелек</button>
+    <div id="wallet-info" class="wallet-info">
+        <p>✅ Кошелек подключен!</p>
+        <p id="wallet-address">Адрес: </p>
+    </div>
+    <div id="error" class="error"></div>
     
     <div id="user-info"></div>
 
@@ -46,47 +64,46 @@
                     `<p>Привет, ${initData.user.first_name}!</p>`;
             }
             
-            console.log('Initializing TON Connect v2.2.0');
+            console.log('Initializing TON Connect SDK');
             
             // Проверяем, доступна ли библиотека
-            if (typeof TonConnectUI !== 'undefined') {
-                console.log('TonConnectUI loaded successfully');
+            if (typeof TonConnect !== 'undefined') {
+                console.log('TonConnect SDK loaded successfully');
                 
-                try {
-                    // Инициализируем TON Connect UI
-                    const tonConnectUI = new TonConnectUI.TonConnectUI({
-                        manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json'
-                    });
-                    
-                    // Рендерим кнопку
-                    tonConnectUI.render('#ton-connect');
-                    
-                    console.log('TON Connect UI initialized and rendered');
-                    
-                    // Слушаем изменения состояния кошелька
-                    tonConnectUI.onStatusChange(wallet => {
-                        if (wallet) {
+                // Создаем инстанс TonConnect
+                const connector = new TonConnect.TonConnect({
+                    manifestUrl: 'https://daniilpupshev.github.io/hockey-nft-webapp/tonconnect-manifest.json'
+                });
+                
+                // Обработчик кнопки подключения
+                document.getElementById('connect-wallet').addEventListener('click', async function() {
+                    try {
+                        console.log('Connecting wallet...');
+                        document.getElementById('error').textContent = '';
+                        
+                        // Открываем провайдер (например, TonKeeper)
+                        const wallet = await connector.connect({
+                            jsBridgeKey: 'tonkeeper' // или другой провайдер
+                        });
+                        
+                        if (wallet && wallet.account) {
                             console.log('Wallet connected:', wallet);
-                            document.getElementById('wallet-info').innerHTML = 
-                                `<div class="wallet-info">
-                                    <p>✅ Кошелек подключен!</p>
-                                    <p>Адрес: ${wallet.account.address}</p>
-                                </div>`;
-                        } else {
-                            console.log('Wallet disconnected');
-                            document.getElementById('wallet-info').innerHTML = '';
+                            document.getElementById('wallet-address').textContent = 
+                                `Адрес: ${wallet.account.address}`;
+                            document.getElementById('wallet-info').style.display = 'block';
+                            document.getElementById('connect-wallet').style.display = 'none';
                         }
-                    });
-                    
-                } catch (error) {
-                    console.error('TON Connect initialization error:', error);
-                    document.getElementById('ton-connect').innerHTML = 
-                        '<p style="color: red;">Ошибка инициализации кошелька</p>';
-                }
+                        
+                    } catch (error) {
+                        console.error('Connection error:', error);
+                        document.getElementById('error').textContent = 
+                            'Ошибка подключения: ' + (error.message || 'Неизвестная ошибка');
+                    }
+                });
+                
             } else {
-                console.error('TonConnectUI not found');
-                document.getElementById('ton-connect').innerHTML = 
-                    '<p style="color: red;">Кошелек не поддерживается</p>';
+                console.error('TonConnect SDK not found');
+                document.getElementById('error').textContent = 'Кошелек не поддерживается';
             }
         };
     </script>
